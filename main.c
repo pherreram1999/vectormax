@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#define maxint -1000000000
 
 /**
  * Genera un arreglo dinamico segun en tamaño que se le pase, ya con valores cargados,
@@ -11,6 +12,20 @@ int * newarray(int n){
     int * arr =  (int *) malloc( n * sizeof(int));
     for(int i = 0; i < n; i ++){
         arr[i] = (rand() % ((n* 2) + 1) ) - (n / 2);
+    }
+    return arr;
+}
+
+/**
+ *
+ * @return
+ */
+int * inputarray(int n){
+    int * arr =  (int *) malloc( n * sizeof(int));
+    printf("Ingrese los valores para el nuevo arreglo =>\n");
+    for(int i = 0; i < n; i++){
+        printf("%d:\t",i + 1);
+        scanf("%d",&arr[i]);
     }
     return arr;
 }
@@ -56,34 +71,42 @@ int sum(int * arr,int n){
     return sum;
 }
 
-int * middlecalc(int  * arr,int mitad){
+int middlecalc(int  * arr,int middle,int max){
+    int maxleft = maxint, maxrigth = maxint, sum = 0;
+    for(int i = 0; i < middle; i++){
+        sum += arr[i];
+        if(sum > maxleft)
+            maxleft = sum;
+    }
 
-    return arr;
+    sum = 0;
+    for(int i = middle; i < max; i++){
+        sum += arr[i];
+        if(sum > maxrigth)
+            maxrigth = sum;
+    }
+    return maxleft + maxrigth;
 }
 
-int * maxarray(int * left,int * middle,int * right,int n){
-    int sumleft = sum(left,n);
-    int summiddle = sum(middle,n);
-    int sumrigth = sum(right,n);
-
-    if(sumleft > summiddle){
-        if(sumleft > sumrigth){
+int maxarray(int left,int middle,int rigth){
+    if(left > middle){
+        if(left > rigth){
             return left;
         } else {
-            return right;
+            return rigth;
         }
-    } else if(sumrigth > summiddle){
-        return right;
+    } else if(rigth > middle){
+        return rigth;
     }
     return middle;
 }
 
-int * vectormax(int * arr,int n){
+int vectormax(int * arr,int n){
     // caso mas basico, cuando tiene solo elemento
 
     if(n == 1){
         // caso base
-        return arr; // cuando es un solo elemento el elementos mas grande es el mismo.
+        return arr[0]; // cuando es un solo elemento el elementos mas grande es el mismo.
     }
     // dividimos el problema en mas pequeños
     int middle = n / 2;
@@ -91,27 +114,25 @@ int * vectormax(int * arr,int n){
     // dado al redondeo de la de la division entera, perdemos un elemento del arreglo izquierdo, es por
     // que verificamo este caso para agregarselo a la longitud del arreglo derecho
     int lenrigth = (n % 2) == 0 ? middle : middle + 1;
-
-
     int * arrayleft = subarray(arr, 0, middle);
     int * arrayright = subarray(arr, middle,n);
-
     // mandamos a llamar a si mismo para eocntrar la solucion
     // sin embargo, tenemos que considerar  que tenemos que tres posibles soluciones
     // uno donde el maximo este a la izquierda y otro donde este a la derehca,
     // por utlimo tenemos el caso donde se ecuentre en medio
-    int * maxleft = vectormax(arrayleft,middle);
-    int * maxright = vectormax(arrayright,lenrigth);
-    //int * maxmiddle = middlecalc(arr, middle);
+    int maxleft = vectormax(arrayleft,middle);
+    int maxright = vectormax(arrayright,lenrigth);
+    int maxmiddle = middlecalc(arr, middle,n);
     // por ultimo combinamos retornarno el arreglo maximo
-    //return maxarray(maxleft,maxmiddle,maxright);
-
+    return maxarray(maxleft,maxmiddle,maxright);
 }
 
 int main() {
-    int n = 10;
-    int * arr = newarray(n);
-    int * max = vectormax(arr,n);
-
+    int n = 5;
+    int * arr = inputarray(n);
+    printf("Datos ingresados:\n");
+    printarray(arr,n);
+    int max = vectormax(arr,n);
+    printf("suma maxima: %d",max);
     return 0;
 }
